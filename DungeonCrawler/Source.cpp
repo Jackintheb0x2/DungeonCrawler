@@ -13,7 +13,7 @@ string GetUserName();
 int addPlayerStat(string stat, int arr[]);
 void getStats(int &Strength, int &Dexterity, int &Constitution, int &Intelligence, int &Wisdom, int &Charisma);
 int rollDice(int numOfDice, int numOfSides, int modifier, bool playerStats);
-
+ 
 
 class Player
 {
