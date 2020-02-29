@@ -124,17 +124,7 @@ class Player
 		Money = rollDice(5, 4, 0, false);
 		Money *= 10;
 
-		//displays stats
-		cout << "\nName: " << UserName;
-		cout << "\nStrength:     " << Strength << " | StrMod: " << StrMod;
-		cout << "\nDexterity:    " << Dexterity << " | DexMod: " << DexMod;
-		cout << "\nConstitution: " << Constitution << " | ConMod: " << ConMod;
-		cout << "\nIntelligence: " << Intelligence << " | IntMod: " << IntMod;
-		cout << "\nWisdom:       " << Wisdom << " | WisMod: " << WisMod;
-		cout << "\nCharisma:     " << Charisma << " | ChaMod: " << ChaMod;
-		cout << "\nPlayer Health: " << Health;
-		cout << "\nArmor Class: " << ac;
-		cout << "\nPlayer Money: $" << Money;
+		
 		
 	}
 };
@@ -152,8 +142,24 @@ int main()
 	
 	//this creates a new instance of the player class
 	Player player;
+
+	//displays stats
+	cout << "\n------------------------------";
+	cout << "\nPLAYER STATS:";
+	cout << "\nName: " << player.UserName;
+	cout << "\nStrength:     " << player.Strength << " | StrMod: " << player.StrMod;
+	cout << "\nDexterity:    " << player.Dexterity << " | DexMod: " << player.DexMod;
+	cout << "\nConstitution: " << player.Constitution << " | ConMod: " << player.ConMod;
+	cout << "\nIntelligence: " << player.Intelligence << " | IntMod: " << player.IntMod;
+	cout << "\nWisdom:       " << player.Wisdom << " | WisMod: " << player.WisMod;
+	cout << "\nCharisma:     " << player.Charisma << " | ChaMod: " << player.ChaMod;
+	cout << "\nPlayer Health: " << player.Health;
+	cout << "\nArmor Class: " << player.ac;
+	cout << "\nPlayer Money: $" << player.Money;
+	cout << "\n------------------------------";
+	
 	vector<Item> Items = createItems();
-	cout << Items[0].name;
+	//cout << Items[0].name;
 	
 	return 0;
 }
@@ -196,20 +202,61 @@ vector<Item> createItems()
 	Item LargeHealthPotion(23, "Large Health Potion", Potion, "This large potion restores a lot of HP", 40, 10, "Health", 1, 20);
 	Item ACBoostPotion(24, "Potion of Protection", Potion, "Drinking this potion will increase your armor class temporarily", 50, 10, "Buff", 1, 2);
 	Item StrengthBuffPotion(25, "Strength Potion", Potion, "Drinking this potion gives you a buff to strength", 50, 10, "Buff", 1, 2);
-	Item DexterityBuffPotion(25, "Dexterity Potion", Potion, "Drinking this potion gives you a buff to dexterity", 50, 10, "Buff", 1, 2);
-	Item ConstitutionBuffPotion(25, "Constitution Potion", Potion, "Drinking this potion gives you a buff to constitution", 50, 10, "Buff", 1, 2);
-	Item IntelligenceBuffPotion(25, "Intelligence Potion", Potion, "Drinking this potion gives you a buff to intelligence", 50, 10, "Buff", 1, 2);
-	Item WisdomBuffPotion(25, "Wisdom Potion", Potion, "Drinking this potion gives you a buff to wisdom", 50, 10, "Buff", 1, 2);
-	Item CharismaBuffPotion(25, "Charisma Potion", Potion, "Drinking this potion gives you a buff to charisma", 50, 10, "Buff", 1, 2);
+	Item DexterityBuffPotion(26, "Dexterity Potion", Potion, "Drinking this potion gives you a buff to dexterity", 50, 10, "Buff", 1, 2);
+	Item ConstitutionBuffPotion(27, "Constitution Potion", Potion, "Drinking this potion gives you a buff to constitution", 50, 10, "Buff", 1, 2);
+	Item IntelligenceBuffPotion(28, "Intelligence Potion", Potion, "Drinking this potion gives you a buff to intelligence", 50, 10, "Buff", 1, 2);
+	Item WisdomBuffPotion(29, "Wisdom Potion", Potion, "Drinking this potion gives you a buff to wisdom", 50, 10, "Buff", 1, 2);
+	Item CharismaBuffPotion(30, "Charisma Potion", Potion, "Drinking this potion gives you a buff to charisma", 50, 10, "Buff", 1, 2);
 	//rings
-	//ring of protection
-	//ring of free action
-	//ring of evasion
-	//ring of resistance
-	//ring of regeneration
+	Item RingOfProtection(31, "Ring of Protection", Ring, "This ring grants a bonus to the wearers armor class", 100, 1, "Buff", 3, 1);
+	Item RingOfAction(32, "Ring of Free Action", Ring, "This ring grants an extra attack to the wearer", 100, 1, "Buff", 3, 1);
+	Item RingOfResistance(33, "Ring of Resistance", Ring, "This ring grants the wearer resistance to any damage (kinda op)", 300, 1, "Buff", 4, 0);
+	Item RingOfRegeneration(34, "Ring of Regeneration", Ring, "This ring grants a bonus to the wearer that heals the player 1 hp every 10 turns", 200, 1, "Buff", 3, 1);
 	//misc.
+	//bags for extra storage
+	Item SmallBag(35, "Small Bag", Misc_Item, "This item gives the user 20 extra storage space", 50, 0, "Bag", 1, 20);
+	Item MediumBag(36, "Medium Bag", Misc_Item, "This item gives the user 50 extra storage space", 100, 0, "Bag", 2, 50);
+	Item LargeBag(37, "Large Bag", Misc_Item, "This item gives the user 100 extra storage space", 200, 0, "Bag", 3, 100);
 
+	//added all items to the master list
 	items.push_back(ShortSword);
+	items.push_back(Club);
+	items.push_back(Axe);
+	items.push_back(LongSword);
+	items.push_back(GreatClub);
+	items.push_back(BattleAxe);
+	items.push_back(Rapier);
+	items.push_back(Warhammer);
+	items.push_back(Glaive);
+	items.push_back(GreatAxe);
+	items.push_back(GreatSword);
+	items.push_back(LeatherArmor);
+	items.push_back(PaddedArmor);
+	items.push_back(StuddedArmor);
+	items.push_back(ChainShirt);
+	items.push_back(Breastplate);
+	items.push_back(HalfPlate);
+	items.push_back(ChainMail);
+	items.push_back(Splint);
+	items.push_back(Plate);
+	items.push_back(Shield);
+	items.push_back(SmallHealthPotion);
+	items.push_back(MediumHealthPotion);
+	items.push_back(LargeHealthPotion);
+	items.push_back(ACBoostPotion);
+	items.push_back(StrengthBuffPotion);
+	items.push_back(DexterityBuffPotion);
+	items.push_back(ConstitutionBuffPotion);
+	items.push_back(IntelligenceBuffPotion);
+	items.push_back(WisdomBuffPotion);
+	items.push_back(CharismaBuffPotion);
+	items.push_back(RingOfProtection);
+	items.push_back(RingOfAction);
+	items.push_back(RingOfResistance);
+	items.push_back(RingOfRegeneration);
+	items.push_back(SmallBag);
+	items.push_back(MediumBag);
+	items.push_back(LargeBag);
 
 	return items;
 }
