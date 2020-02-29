@@ -9,7 +9,6 @@ using namespace std;
 
 //PROTOTYPE FUNCTIONS
 void Introduction();
-
 string GetUserName();
 int addPlayerStat(string stat, int arr[]);
 void getStats(int& Strength, int& Dexterity, int& Constitution, int& Intelligence, int& Wisdom, int& Charisma);
@@ -118,21 +117,19 @@ class Player
 
 		
 		cout << "\nName: " << UserName;
-		cout << "\nStrength: " << Strength << " and StrMod: " << StrMod;
-		cout << "\nDexterity: " << Dexterity << " and DexMod: " << DexMod;
-		cout << "\nConstitution: " << Constitution << " and ConMod: " << ConMod;
-		cout << "\nIntelligence: " << Intelligence << " and IntMod: " << IntMod;
-		cout << "\nWisdom: " << Wisdom << " and WisMod: " << WisMod;
-		cout << "\nCharisma: " << Charisma << "and ChaMod: " << ChaMod;
+		cout << "\nStrength:     " << Strength << " | StrMod: " << StrMod;
+		cout << "\nDexterity:    " << Dexterity << " | DexMod: " << DexMod;
+		cout << "\nConstitution: " << Constitution << " | ConMod: " << ConMod;
+		cout << "\nIntelligence: " << Intelligence << " | IntMod: " << IntMod;
+		cout << "\nWisdom:       " << Wisdom << " | WisMod: " << WisMod;
+		cout << "\nCharisma:     " << Charisma << " | ChaMod: " << ChaMod;
 		cout << "\nPlayer Health: " << Health;
 		cout << "\nPlayer Money: $" << Money;
 		
 	}
 };
 
-//Item playerSword(0, "Sword", Weapon, "Simple Sword", 10, 20, "OneHanded", 1, 5);
-
-//prototype functions for vector
+//created prototype of master item list
 vector<Item> createItems();
 
 //this is the main function where everything gets run here first
@@ -196,7 +193,7 @@ vector<Item> createItems()
 	Item CharismaBuffPotion(25, "Charisma Potion", Potion, "Drinking this potion gives you a buff to charisma", 50, 10, "Buff", 1, 2);
 	//rings
 
-
+	items.push_back(ShortSword);
 
 	return items;
 }
@@ -398,11 +395,13 @@ int rollDice(int numOfDice, int numOfSides, int modifier, bool playerStats)
 		//initializes the three variables to the lowest value
 		firstHigh = secondHigh = thirdHigh = INT_MIN;
 
+		cout << "\nto roll, ";
+		system("pause");
+		
 		//the for loop rolls 4 dice
 		for(int i = 0; i < numOfDice; i++)
 		{
-			cout << "to roll, ";
-			system("pause");
+			
 			//this gets the value of the die and stores it into the array
 			die[i] = (rand() % numOfSides) + 1;
 
