@@ -48,6 +48,7 @@ struct Item
 	int requirement_level;
 	int effect;
 
+	//create's a constructor of the class so everytime it is called, it creates a new item with its own set of properties
 	Item(int Id, string Name, itemType Type, string Flavor_text, int Cost, int Weight, string Property, int Requirement, int Effect)
 	{
 		id = Id;
@@ -70,6 +71,9 @@ class Player
 	//the amount of money your character has
 	int Money = 0;
 
+	//armor class is the chance you can evade incoming attacks
+	int ac = 0;
+	
 	//name
 	string UserName;
 	
@@ -102,6 +106,7 @@ class Player
 		cout << "\nRoll for your stats! ";
 		system("pause");
 		getStats(Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma);
+		//calculates the modifier per stat
 		StrMod = (Strength - 10) / 2;
 		DexMod = (Dexterity - 10) / 2;
 		ConMod = (Constitution - 10) / 2;
@@ -113,9 +118,13 @@ class Player
 		cout << "\nStarting at first level, you start with a base 10HP + your constitution modifier\n";
 		Health = 10 + ConMod;
 
-		
+		ac = 10 + DexMod;
 
-		
+		//roll for how much money you start off with
+		Money = rollDice(5, 4, 0, false);
+		Money *= 10;
+
+		//displays stats
 		cout << "\nName: " << UserName;
 		cout << "\nStrength:     " << Strength << " | StrMod: " << StrMod;
 		cout << "\nDexterity:    " << Dexterity << " | DexMod: " << DexMod;
@@ -124,6 +133,7 @@ class Player
 		cout << "\nWisdom:       " << Wisdom << " | WisMod: " << WisMod;
 		cout << "\nCharisma:     " << Charisma << " | ChaMod: " << ChaMod;
 		cout << "\nPlayer Health: " << Health;
+		cout << "\nArmor Class: " << ac;
 		cout << "\nPlayer Money: $" << Money;
 		
 	}
@@ -158,17 +168,17 @@ vector<Item> createItems()
 {
 	vector<Item> items;
 	//weapons
-	Item ShortSword(0, "Short Sword", Weapon, "A basic sword that measures 1 - 1.5ft in length", 10, 10, "OneHanded", 1, 1);
+	Item ShortSword(0, "Short Sword", Weapon, "A basic sword that measures 1 - 1.5ft in length", 10, 10, "OneHanded", 1, 0);
 	Item Club(1, "Club", Weapon, "A blunt object that can be swung with force", 2, 5, "OneHanded", 1, 1);
 	Item Axe(2, "Axe", Weapon, "A long wooden handler with a sharp blade on the end used for chopping", 8, 10, "OneHanded", 2, 1);
-	Item LongSword(3, "Longsword", Weapon, "Longer than a shortsword, this weapon can cause more damage while being OneHanded", 15, 15, "OneHanded", 2, 1);
-	Item GreatClub(4, "Greatclub", Weapon, "This great club is an upgrade from a regular club in both size and damage.", 5, 10, "OneHanded", 2, 1);
-	Item BattleAxe(5, "Battleaxe", Weapon, "Used in battle, this weapon has a deadly force behind it when used", 20, 15, "TwoHanded", 3, 1);
-	Item Rapier(6, "Rapier", Weapon, "This light weapon is used for quick and consistent attacks to weaken your enemy", 20, 5, "OneHanded", 3, 1);
-	Item Warhammer(7, "Warhammer", Weapon, "This weapon is extermely heavy and used for doing lots of damage in one hit.", 25, 25, "TwoHanded", 3, 1);
-	Item Glaive(8, "Glaive", Weapon, "A pole arm that is a large knife mounted to a pole.", 30, 20, "TwoHanded", 4, 1);
-	Item GreatAxe(9, "Greataxe", Weapon, "The largest member of axes. It requires two hands to wield.", 30, 25, "TwoHanded", 4, 1);
-	Item GreatSword(10, "Greatsword", Weapon, "The largest member of swords. It requires two hands to wield.", 50, 20, "TwoHanded", 4, 1);
+	Item LongSword(3, "Longsword", Weapon, "Longer than a shortsword, this weapon can cause more damage while being OneHanded", 15, 15, "OneHanded", 2, 0);
+	Item GreatClub(4, "Greatclub", Weapon, "This great club is an upgrade from a regular club in both size and damage.", 5, 10, "OneHanded", 2, 0);
+	Item BattleAxe(5, "Battleaxe", Weapon, "Used in battle, this weapon has a deadly force behind it when used", 20, 15, "TwoHanded", 3, 0);
+	Item Rapier(6, "Rapier", Weapon, "This light weapon is used for quick and consistent attacks to weaken your enemy", 20, 5, "OneHanded", 3, 0);
+	Item Warhammer(7, "Warhammer", Weapon, "This weapon is extermely heavy and used for doing lots of damage in one hit.", 25, 25, "TwoHanded", 3, 0);
+	Item Glaive(8, "Glaive", Weapon, "A pole arm that is a large knife mounted to a pole.", 30, 20, "TwoHanded", 4, 0);
+	Item GreatAxe(9, "Greataxe", Weapon, "The largest member of axes. It requires two hands to wield.", 30, 25, "TwoHanded", 4, 0);
+	Item GreatSword(10, "Greatsword", Weapon, "The largest member of swords. It requires two hands to wield.", 50, 20, "TwoHanded", 4, 0);
 	//armor
 	Item LeatherArmor(11, "Leather Armor", Armor, "Armor made from stiff leather", 10, 10, "Light", 1, 11);
 	Item PaddedArmor(12, "Padded Armor", Armor, "Armor made from regular clothes padded together", 5, 10, "Light", 1, 11);
@@ -178,7 +188,7 @@ vector<Item> createItems()
 	Item HalfPlate(16, "Half Plate", Armor, "consists of shaped metal plates the cover most of the wearer's body", 150, 40, "Medium", 2, 15);
 	Item ChainMail(17, "Chain Mail", Armor, "Made of interlocking rings and includes a layer of quilted fabric to prevent chafing", 75, 55, "Heavy", 3, 16);
 	Item Splint(18, "Splint", Armor, "Armor made from vertical strips of metal with flexible chain mail to protect the joints", 200, 60, "Heavy", 3, 17);
-	Item Plate(19, "Plate", Armor, "Armor made from interlocking metal that covers the entire body", 10, 10, "null", 4, 18);
+	Item Plate(19, "Plate", Armor, "Armor made from interlocking metal that covers the entire body", 10, 10, "Heavy", 4, 18);
 	Item Shield(20, "Shield", Armor, "it's a shield", 10, 10, "Light", 2, 2);
 	//potions 
 	Item SmallHealthPotion(21, "Small Health Potion", Potion, "S small potion that restores some HP", 10, 2, "Health", 1, 5);
@@ -192,6 +202,12 @@ vector<Item> createItems()
 	Item WisdomBuffPotion(25, "Wisdom Potion", Potion, "Drinking this potion gives you a buff to wisdom", 50, 10, "Buff", 1, 2);
 	Item CharismaBuffPotion(25, "Charisma Potion", Potion, "Drinking this potion gives you a buff to charisma", 50, 10, "Buff", 1, 2);
 	//rings
+	//ring of protection
+	//ring of free action
+	//ring of evasion
+	//ring of resistance
+	//ring of regeneration
+	//misc.
 
 	items.push_back(ShortSword);
 
@@ -431,11 +447,11 @@ int rollDice(int numOfDice, int numOfSides, int modifier, bool playerStats)
 		//it loops the amount of time there are number of dice
 		for (int i = 0; i < numOfDice; i++)
 		{
-			cout << "to roll, ";
+			cout << "\nto roll, ";
 			system("pause");
 			//this gets the value of the die
 			dieValue = (rand() % numOfSides) + 1;
-			cout << " * You rolled a " << dieValue << "! * \n\n";
+			cout << "\n * You rolled a " << dieValue << "! * \n\n";
 			total += dieValue;//it adds the die value to the current total value
 		}
 	}
