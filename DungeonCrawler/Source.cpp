@@ -9,6 +9,9 @@ using namespace std;
 
 //PROTOTYPE FUNCTIONS
 void Introduction();
+void Store();
+void Commands();
+void PlayerStats();
 string GetUserName();
 int addPlayerStat(string stat, int arr[]);
 void getStats(int& Strength, int& Dexterity, int& Constitution, int& Intelligence, int& Wisdom, int& Charisma);
@@ -139,10 +142,28 @@ int main()
 	srand(static_cast<unsigned int>(time(nullptr)));
 
 	cout << "\n\n\t\tWELCOME TO DUNGEON CRAWLER\n\n";
-	
+
+	Introduction();
 	//this creates a new instance of the player class
 	Player player;
+	//PlayerStats(->player);
+	
+	
+	vector<Item> Items = createItems();
+	cout << Items[0].name;
+	
+	return 0;
+}
 
+//introduction dialog
+void Introduction()
+{
+	cout << "Welcome player!\nThis is Dungeon Crawler, a text-based \ninteractive story game where you \ntry to defeat a dungeon!\n\n";
+	
+}
+
+void PlayerStats(Player player)
+{
 	//displays stats
 	cout << "\n------------------------------";
 	cout << "\nPLAYER STATS:";
@@ -157,17 +178,6 @@ int main()
 	cout << "\nArmor Class: " << player.ac;
 	cout << "\nPlayer Money: $" << player.Money;
 	cout << "\n------------------------------";
-	
-	vector<Item> Items = createItems();
-	//cout << Items[0].name;
-	
-	return 0;
-}
-
-//introduction dialog
-void Introduction()
-{
-	cout << "Welcome player!";
 }
 
 vector<Item> createItems()
