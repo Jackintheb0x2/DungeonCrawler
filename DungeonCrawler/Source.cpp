@@ -9,9 +9,8 @@ using namespace std;
 
 //PROTOTYPE FUNCTIONS
 void Introduction();
-void Store();
 void Commands();
-void PlayerStats();
+
 string GetUserName();
 int addPlayerStat(string stat, int arr[]);
 void getStats(int& Strength, int& Dexterity, int& Constitution, int& Intelligence, int& Wisdom, int& Charisma);
@@ -134,6 +133,8 @@ class Player
 
 //created prototype of master item list
 vector<Item> createItems();
+void Store(vector<Item>& list);
+void PlayerStats(Player& player);
 
 //this is the main function where everything gets run here first
 int main()
@@ -146,11 +147,12 @@ int main()
 	Introduction();
 	//this creates a new instance of the player class
 	Player player;
-	//PlayerStats(->player);
+	PlayerStats(player);
 	
 	
 	vector<Item> Items = createItems();
-	cout << Items[0].name;
+	Store(Items);
+	//cout << Items[0].name;
 	
 	return 0;
 }
@@ -159,10 +161,11 @@ int main()
 void Introduction()
 {
 	cout << "Welcome player!\nThis is Dungeon Crawler, a text-based \ninteractive story game where you \ntry to defeat a dungeon!\n\n";
-	
+	cout << "\n\n Before we begin, we need to create your character!\n";
+	system("pause");
 }
 
-void PlayerStats(Player player)
+void PlayerStats(Player& player)
 {
 	//displays stats
 	cout << "\n------------------------------";
@@ -178,6 +181,46 @@ void PlayerStats(Player player)
 	cout << "\nArmor Class: " << player.ac;
 	cout << "\nPlayer Money: $" << player.Money;
 	cout << "\n------------------------------";
+}
+
+void Store(vector<Item>& list)
+{
+	cout << "\n\n";
+	int id = 0;
+	int NameSize = 0;
+	int format = 0;
+	cout << "\nSTORE\n";
+	cout << "-----------------------------------------------------------------------------------------------------------\n";
+	for(int i = 0; i < 19; i++)
+	{
+		for(int j = 0; j < 2; j++)
+		{
+			//20 characters
+			NameSize = list[id].name.size();
+			format = 21 - NameSize;
+			cout << list[id].name;
+			for(int space = 0; space < format; space++)
+			{
+				cout << " ";
+			}
+			cout << " | Cost: " << list[id].cost;
+			format = 5 - to_string(list[id].cost).size();
+			for(int space = 0; space < format; space++)
+			{
+				cout << " ";
+			}
+			cout << " | Weight: " << list[id].weight;
+			format = 5 - to_string(list[id].weight).size();
+			for(int space = 0; space < format; space++)
+			{
+				cout << " ";
+			}
+			cout << " | ";
+			id++;
+		}
+		cout << "\n";
+	}
+	cout << "\n\n";
 }
 
 vector<Item> createItems()
