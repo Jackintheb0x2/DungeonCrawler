@@ -9,8 +9,8 @@ using namespace std;
 
 //PROTOTYPE FUNCTIONS
 void Introduction();
-void Commands();
 
+int Decision(vector<string> decision);
 string GetUserName();
 int addPlayerStat(string stat, int arr[]);
 void getStats(int& Strength, int& Dexterity, int& Constitution, int& Intelligence, int& Wisdom, int& Charisma);
@@ -27,7 +27,6 @@ enum itemType
 	Weapon,
 	Misc_Item
 };
-
 
 //this class creates all of the items the game will use
 struct Item
@@ -98,6 +97,10 @@ class Player
 	//health
 	int Health;
 
+	//player inventory
+	vector<Item> PlayerInventory;
+	int carrying_capacity = 20;
+
 	//this is the constructor that builds the player
 	Player()
 	{
@@ -123,11 +126,125 @@ class Player
 		ac = 10 + DexMod;
 
 		//roll for how much money you start off with
+		cout << "\nNow you are going to roll 4d4 to see how much money you start with\n";
 		Money = rollDice(5, 4, 0, false);
 		Money *= 10;
 
 		
 		
+	}
+	//adds item to player inventory
+	void addItem(Item& inventoryItem)
+	{
+		PlayerInventory.push_back(inventoryItem);
+	}
+	//deletes item from player inventory
+	void deleteItem(Item& inventoryItem)
+	{
+		auto i = PlayerInventory.begin();
+		do
+		{
+			++i;
+		} while (inventoryItem.name != i->name && i != PlayerInventory.end());
+		if (i != PlayerInventory.end()) {
+			PlayerInventory.erase(i);
+		}
+	}
+
+	void showItem(Item& inventoryItem)
+	{
+		cout << "\n\n----------------------------------\n";
+		cout << inventoryItem.name;
+		cout << "\nType: " << inventoryItem.type;
+		cout << "\nDescription: " << inventoryItem.flavor_text;
+		cout << "\nCost: " << inventoryItem.cost;
+		cout << "\nWeight: " << inventoryItem.weight;
+		cout << "\nProperty: " << inventoryItem.property;
+		cout << "\nRequired Level: lvl " << inventoryItem.requirement_level;
+		switch(inventoryItem.type)
+		{
+		case Weapon:
+			cout << "\nDamage: " << inventoryItem.effect;
+			break;
+		case Armor:
+			cout << "\nArmor: +" << inventoryItem.effect;
+			break;
+		case Potion:
+			cout << "\nPotion: +" << inventoryItem.effect;
+			break;
+		case Ring:
+			cout << "\nRing: +" << inventoryItem.effect;
+			break;
+		case Misc_Item:
+			cout << "\n+" << inventoryItem.effect << " Carrying Capacity";
+			break;
+		}
+		cout << "\n----------------------------------";
+	}
+	
+	int searchItem(string name)
+	{
+		//goes through a while loop to check if the name argument matches the item name
+		int id = 0;
+		do
+		{
+			++id;
+		} while (name != PlayerInventory[id].name);
+
+		//if there is a match, it returns the id from the inventory vector
+		if(name == PlayerInventory[id].name)
+		{
+			return id;
+		}else//else it returns a -1 which will be used to see if it came back false and -1 is impossible to return from a vector
+		{
+			return -1;
+		}
+		
+	}
+	
+	void displayInventory()
+	{
+		cout << "\n\n";
+		int id = 0;//this stores the id of each item
+		int NameSize = 0;//these two variables organize the store to make it look nice
+		int format = 0;
+		cout << "\nPLAYER INVENTORY\n";
+		cout << "-----------------------------------------------------------------------------------------------------------\n";
+		for (int i = 0; i < 19; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				//this first part lists the name
+				//20 characters
+				NameSize = PlayerInventory[id].name.size();
+				format = 21 - NameSize;
+				cout << PlayerInventory[id].name;
+				for (int space = 0; space < format; space++)
+				{
+					cout << " ";
+				}
+				//this part list the costs
+				cout << " | Cost: " << PlayerInventory[id].cost;
+				format = 5 - to_string(PlayerInventory[id].cost).size();
+				for (int space = 0; space < format; space++)
+				{
+					cout << " ";
+				}
+				//this part lists the weight
+				cout << " | Weight: " << PlayerInventory[id].weight;
+				format = 5 - to_string(PlayerInventory[id].weight).size();
+				for (int space = 0; space < format; space++)
+				{
+					cout << " ";
+				}
+				cout << " | ";
+				//increases the id to keep track of the item listed
+				id++;
+			}
+			cout << "\n";
+		}
+		cout << "-----------------------------------------------------------------------------------------------------------\n";
+		cout << "\n\n";
 	}
 };
 
@@ -135,6 +252,7 @@ class Player
 vector<Item> createItems();
 void Store(vector<Item>& list);
 void PlayerStats(Player& player);
+void Commands(string command, Player& player);
 
 //this is the main function where everything gets run here first
 int main()
@@ -151,7 +269,17 @@ int main()
 	
 	
 	vector<Item> Items = createItems();
-	Store(Items);
+	string answer;
+	do
+	{
+		getline(cin, answer);
+		if (answer.find("/") == 0)
+		{
+			Commands(answer, player);
+		}
+	} while (true);
+	
+	//Store(Items);
 	//cout << Items[0].name;
 	
 	return 0;
@@ -164,6 +292,77 @@ void Introduction()
 	cout << "\n\n Before we begin, we need to create your character!\n";
 	system("pause");
 }
+
+int Decision(vector<string> decision)
+{
+	int choice = 0;
+	cout << "\nMENU:";
+	cout << "\n----------";
+	for(int i = 0; i < decision.size(); i++)
+	{
+		cout << i+1 << ". " << decision[i];
+	}
+	cout << "\nChoice :>";
+	cin >> choice;
+	cout << "\n\n";
+	return choice;
+}
+
+
+void Commands(string command, Player& player)
+{
+
+	if(command == "/help")
+	{
+		cout << "\nthese are all of the commands you can do\n";
+		cout << "/help  | /inventory          | /store\n";
+		cout << "/stats | /drop (item name)   | /item (name)\n";
+		cout << "/quit  | /buy (in store only)| /sell (in store only)\n";
+	}else if(command == "/stats")
+	{
+		PlayerStats(player);
+	}else if(command == "/inventory")
+	{
+		player.displayInventory();
+	}else if(command.find("/drop") == 0)
+	{
+		//finds the name of the item you want to drop
+		string itemName = command.substr(6, (command.length() - 5));
+		//convert string name to item id
+		int id = player.searchItem(itemName);
+		if(id == -1)
+		{
+			//did not find the item
+			cout << "\nCould not find the item you wanted. Try double checking if the name is spelled correctly\n";
+		}
+		else {
+			//calls the delete item function in player
+			player.deleteItem(player.PlayerInventory[id]);
+		}
+	}
+	else if (command.find("/item") == 0) {
+		string itemName = command.substr(6, (command.length() - 5));
+		int id = player.searchItem(itemName);
+		if (id == -1)
+		{
+			//did not find the item
+			cout << "\nCould not find the item you wanted. Try double checking if the name is spelled correctly\n";
+		}
+		else {
+			//calls the delete item function in player
+			player.showItem(player.PlayerInventory[id]);
+		}
+	}else if(command.find("/quit") == 0)
+	{
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		cout << "unrecognized command. type '/help' to see the list of commands.";
+	}
+
+}
+
 
 void PlayerStats(Player& player)
 {
@@ -183,11 +382,12 @@ void PlayerStats(Player& player)
 	cout << "\n------------------------------";
 }
 
+//this function displays all of the items in the game
 void Store(vector<Item>& list)
 {
 	cout << "\n\n";
-	int id = 0;
-	int NameSize = 0;
+	int id = 0;//this stores the id of each item
+	int NameSize = 0;//these two variables organize the store to make it look nice
 	int format = 0;
 	cout << "\nSTORE\n";
 	cout << "-----------------------------------------------------------------------------------------------------------\n";
@@ -195,6 +395,7 @@ void Store(vector<Item>& list)
 	{
 		for(int j = 0; j < 2; j++)
 		{
+			//this first part lists the name
 			//20 characters
 			NameSize = list[id].name.size();
 			format = 21 - NameSize;
@@ -203,12 +404,14 @@ void Store(vector<Item>& list)
 			{
 				cout << " ";
 			}
+			//this part list the costs
 			cout << " | Cost: " << list[id].cost;
 			format = 5 - to_string(list[id].cost).size();
 			for(int space = 0; space < format; space++)
 			{
 				cout << " ";
 			}
+			//this part lists the weight
 			cout << " | Weight: " << list[id].weight;
 			format = 5 - to_string(list[id].weight).size();
 			for(int space = 0; space < format; space++)
@@ -216,10 +419,12 @@ void Store(vector<Item>& list)
 				cout << " ";
 			}
 			cout << " | ";
+			//increases the id to keep track of the item listed
 			id++;
 		}
 		cout << "\n";
 	}
+	cout << "-----------------------------------------------------------------------------------------------------------\n";
 	cout << "\n\n";
 }
 
@@ -231,7 +436,7 @@ vector<Item> createItems()
 	Item Club(1, "Club", Weapon, "A blunt object that can be swung with force", 2, 5, "OneHanded", 1, 1);
 	Item Axe(2, "Axe", Weapon, "A long wooden handler with a sharp blade on the end used for chopping", 8, 10, "OneHanded", 2, 1);
 	Item LongSword(3, "Longsword", Weapon, "Longer than a shortsword, this weapon can cause more damage while being OneHanded", 15, 15, "OneHanded", 2, 0);
-	Item GreatClub(4, "Greatclub", Weapon, "This great club is an upgrade from a regular club in both size and damage.", 5, 10, "OneHanded", 2, 0);
+	Item GreatClub(4, "Great Club", Weapon, "This great club is an upgrade from a regular club in both size and damage.", 5, 10, "OneHanded", 2, 0);
 	Item BattleAxe(5, "Battleaxe", Weapon, "Used in battle, this weapon has a deadly force behind it when used", 20, 15, "TwoHanded", 3, 0);
 	Item Rapier(6, "Rapier", Weapon, "This light weapon is used for quick and consistent attacks to weaken your enemy", 20, 5, "OneHanded", 3, 0);
 	Item Warhammer(7, "Warhammer", Weapon, "This weapon is extermely heavy and used for doing lots of damage in one hit.", 25, 25, "TwoHanded", 3, 0);
@@ -382,111 +587,6 @@ void getStats(int &Strength, int &Dexterity, int &Constitution, int &Intelligenc
 	Wisdom = addPlayerStat("Wisdom", statID);
 	Charisma = addPlayerStat("Charisma", statID);
 	
-	/*
-	 *THIS IS 100 LINES OF CODE I DON'T NEED!!!!!!
-	while (strengthChoice < 0 || strengthChoice > 6)
-	{
-	str:
-		cout << "Strength: ";
-		cin >> strengthChoice;
-		strengthChoice--;
-		if (statID[strengthChoice] == 0)
-		{
-			cout << "\nThis stat has already been used pick another one!\n";
-			goto str;
-		}
-		Strength = statID[strengthChoice];
-		statID[strengthChoice] = 0;
-	}
-	for (int i = 0; i < 6; i++) { cout << statID[i] << ", "; }
-	cout << "\n\n";
-
-	
-	while (dexterityChoice < 0 || dexterityChoice > 6)
-	{
-	dex:
-		cout << "Dexterity: ";
-		cin >> dexterityChoice;
-		dexterityChoice--;
-		if (statID[dexterityChoice] == 0)
-		{
-			cout << "\nThis stat has already been used pick another one!\n";
-			goto dex;
-		}
-		Dexterity = statID[dexterityChoice];
-		statID[dexterityChoice] = 0;
-	}
-	for (int i = 0; i < 6; i++) { cout << statID[i] << ", "; }
-	cout << "\n\n";
-
-	while (constitutionChoice < 0 || constitutionChoice > 6)
-	{
-	con:
-		cout << "constitution: ";
-		cin >> constitutionChoice;
-		constitutionChoice--;
-		if (statID[constitutionChoice] == 0)
-		{
-			cout << "\nThis stat has already been used pick another one!\n";
-			goto con;
-		}
-		Constitution = statID[constitutionChoice];
-		statID[constitutionChoice] = 0;
-	}
-	for (int i = 0; i < 6; i++) { cout << statID[i] << ", "; }
-	cout << "\n\n";
-
-	while (intelligenceChoice < 0 || intelligenceChoice > 6)
-	{
-	inte:
-		cout << "intelligence: ";
-		cin >> intelligenceChoice;
-		intelligenceChoice--;
-		if (statID[intelligenceChoice] == 0)
-		{
-			cout << "\nThis stat has already been used pick another one!\n";
-			goto inte;
-		}
-		Intelligence = statID[intelligenceChoice];
-		statID[intelligenceChoice] = 0;
-	}
-	for (int i = 0; i < 6; i++) { cout << statID[i] << ", "; }
-	cout << "\n\n";
-
-	while (wisdomChoice < 0 || wisdomChoice > 6)
-	{
-	wis:
-		cout << "wisdom: ";
-		cin >> wisdomChoice;
-		wisdomChoice--;
-		if (statID[wisdomChoice] == 0)
-		{
-			cout << "\nThis stat has already been used pick another one!\n";
-			goto wis;
-		}
-		Wisdom = statID[wisdomChoice];
-		statID[wisdomChoice] = 0;
-	}
-	for (int i = 0; i < 6; i++) { cout << statID[i] << ", "; }
-	cout << "\n\n";
-
-	while (charismaChoice < 0 || charismaChoice > 6)
-	{
-	cha:
-		cout << "charisma: ";
-		cin >> charismaChoice;
-		charismaChoice--;
-		if (statID[charismaChoice] == 0)
-		{
-			cout << "\nThis stat has already been used pick another one!\n";
-			goto cha;
-		}
-		Charisma = statID[charismaChoice];
-		statID[charismaChoice] = 0;
-	}
-	for (int i = 0; i < 6; i++) { cout << statID[i] << ", "; }
-	cout << "\n\n";
-	*/
 }
 
 
