@@ -252,7 +252,7 @@ class Player
 vector<Item> createItems();
 void Store(vector<Item>& list);
 void PlayerStats(Player& player);
-void Commands(string command, Player& player);
+void Commands(string command, Player& player, vector<Item>& list);
 
 //this is the main function where everything gets run here first
 int main()
@@ -275,7 +275,7 @@ int main()
 		getline(cin, answer);
 		if (answer.find("/") == 0)
 		{
-			Commands(answer, player);
+			Commands(answer, player, Items);
 		}
 	} while (true);
 	
@@ -309,7 +309,7 @@ int Decision(vector<string> decision)
 }
 
 
-void Commands(string command, Player& player)
+void Commands(string command, Player& player, vector<Item>& list)
 {
 
 	if(command == "/help")
@@ -324,7 +324,12 @@ void Commands(string command, Player& player)
 	}else if(command == "/inventory")
 	{
 		player.displayInventory();
-	}else if(command.find("/drop") == 0)
+	}
+	else if (command == "/store")
+	{
+		Store(list);
+	}
+	else if (command.find("/drop") == 0)
 	{
 		//finds the name of the item you want to drop
 		string itemName = command.substr(6, (command.length() - 5));
@@ -379,7 +384,7 @@ void PlayerStats(Player& player)
 	cout << "\nPlayer Health: " << player.Health;
 	cout << "\nArmor Class: " << player.ac;
 	cout << "\nPlayer Money: $" << player.Money;
-	cout << "\n------------------------------";
+	cout << "\n------------------------------\n\n";
 }
 
 //this function displays all of the items in the game
