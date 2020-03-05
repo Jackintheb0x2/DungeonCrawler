@@ -8,14 +8,14 @@
 using namespace std;
 
 //PROTOTYPE FUNCTIONS
-void Introduction();
+void Introduction();//just dialog explaining the game
 
-int Decision(vector<string> decision);
-string GetUserName();
-int addPlayerStat(string stat, int arr[]);
-void getStats(int& Strength, int& Dexterity, int& Constitution, int& Intelligence, int& Wisdom, int& Charisma);
-int getPlayerHealth(int mod);
-int rollDice(int numOfDice, int numOfSides, int modifier, bool playerStats);
+int Decision(vector<string> decision);//enter a string of different options and will print out a menu
+string GetUserName();//gets the username
+int addPlayerStat(string stat, int arr[]);//adds the rolled stat to the player
+void getStats(int& Strength, int& Dexterity, int& Constitution, int& Intelligence, int& Wisdom, int& Charisma);//this gets the stats of the player
+int getPlayerHealth(int mod);//this gets the player health
+int rollDice(int numOfDice, int numOfSides, int modifier, bool playerStats);//this rolls a certain number of dice
 
 
 //this data type is to categorize different items
@@ -49,7 +49,7 @@ struct Item
 	int requirement_level;
 	int effect;
 
-	//create's a constructor of the class so everytime it is called, it creates a new item with its own set of properties
+	//creates a constructor of the class so everytime it is called, it creates a new item with its own set of properties
 	Item(int Id, string Name, itemType Type, string Flavor_text, int Cost, int Weight, string Property, int Requirement, int Effect)
 	{
 		id = Id;
@@ -141,13 +141,16 @@ class Player
 	//deletes item from player inventory
 	void deleteItem(Item& inventoryItem)
 	{
-		auto i = PlayerInventory.begin();
+		auto i = PlayerInventory.begin();//starts at the beginning of the index of the player inventory
 		do
 		{
 			++i;
-		} while (inventoryItem.name != i->name && i != PlayerInventory.end());
+		} while (inventoryItem.name != i->name && i != PlayerInventory.end());//it keeps looping until it finds the item or until it makes it to the end of the array
 		if (i != PlayerInventory.end()) {
 			PlayerInventory.erase(i);
+		}else
+		{
+			cout << "\nCould not find the item you were looking for!";
 		}
 	}
 
@@ -164,7 +167,7 @@ class Player
 		switch(inventoryItem.type)
 		{
 		case Weapon:
-			cout << "\nDamage: " << inventoryItem.effect;
+			cout << "\nDamage: 1d" << inventoryItem.effect;
 			break;
 		case Armor:
 			cout << "\nArmor: +" << inventoryItem.effect;
@@ -195,10 +198,10 @@ class Player
 		if(name == PlayerInventory[id].name)
 		{
 			return id;
-		}else//else it returns a -1 which will be used to see if it came back false and -1 is impossible to return from a vector
-		{
-			return -1;
-		}
+		}//else it returns a -1 which will be used to see if it came back false and -1 is impossible to return from a vector
+
+		return -1;
+		
 		
 	}
 	
@@ -255,6 +258,10 @@ void PlayerStats(Player& player);
 void Commands(string command, Player& player, vector<Item>& list);
 
 //this is the main function where everything gets run here first
+
+//the only global variable
+bool GameRunning = true;
+
 int main()
 {
 	//this lets rolls be randomized
@@ -273,11 +280,11 @@ int main()
 	do
 	{
 		getline(cin, answer);
-		if (answer.find("/") == 0)
+		if (answer.find('/') == 0)
 		{
 			Commands(answer, player, Items);
 		}
-	} while (true);
+	} while (GameRunning);
 	
 	//Store(Items);
 	//cout << Items[0].name;
@@ -293,14 +300,15 @@ void Introduction()
 	system("pause");
 }
 
+//this function displays the menu for a number of options
 int Decision(vector<string> decision)
 {
 	int choice = 0;
 	cout << "\nMENU:";
 	cout << "\n----------";
-	for(int i = 0; i < decision.size(); i++)
+	for(int i = 0; i < decision.size(); i++)//for loop displays each decision
 	{
-		cout << i+1 << ". " << decision[i];
+		cout << i+1 << ". " << decision[i] << "\n";
 	}
 	cout << "\nChoice :>";
 	cin >> choice;
@@ -308,10 +316,10 @@ int Decision(vector<string> decision)
 	return choice;
 }
 
-
+//handles all of the commands
 void Commands(string command, Player& player, vector<Item>& list)
 {
-
+	//displays all of the commands if the command is /help
 	if(command == "/help")
 	{
 		cout << "\nthese are all of the commands you can do\n";
@@ -320,42 +328,63 @@ void Commands(string command, Player& player, vector<Item>& list)
 		cout << "/quit  | /buy (in store only)| /sell (in store only)\n";
 	}else if(command == "/stats")
 	{
+		//gets the player stats
 		PlayerStats(player);
 	}else if(command == "/inventory")
 	{
-		player.displayInventory();
+		//gets the player's inventory
+		if(player.PlayerInventory.empty())
+		{
+			cout << "\nYou have no items!\n";
+		}else
+		{
+
+			player.displayInventory();
+		}
+		
 	}
 	else if (command == "/store")
 	{
+		//displays all of the items you can buy
 		Store(list);
 	}
 	else if (command.find("/drop") == 0)
 	{
-		//finds the name of the item you want to drop
-		string itemName = command.substr(6, (command.length() - 5));
-		//convert string name to item id
-		int id = player.searchItem(itemName);
-		if(id == -1)
+		if (player.PlayerInventory.empty()) {
+			cout << "\nYou have no items!\n";
+		}else
 		{
-			//did not find the item
-			cout << "\nCould not find the item you wanted. Try double checking if the name is spelled correctly\n";
-		}
-		else {
-			//calls the delete item function in player
-			player.deleteItem(player.PlayerInventory[id]);
+			//finds the name of the item you want to drop
+			string itemName = command.substr(6, (command.length() - 5));
+			//convert string name to item id
+			int id = player.searchItem(itemName);
+			if (id == -1)
+			{
+				//did not find the item
+				cout << "\nCould not find the item you wanted. Try double checking if the name is spelled correctly\n";
+			}
+			else {
+				//calls the delete item function in player
+				player.deleteItem(player.PlayerInventory[id]);
+			}
 		}
 	}
 	else if (command.find("/item") == 0) {
-		string itemName = command.substr(6, (command.length() - 5));
-		int id = player.searchItem(itemName);
-		if (id == -1)
+		if (player.PlayerInventory.empty()) {
+			cout << "\nYou have no items!\n";
+		}else
 		{
-			//did not find the item
-			cout << "\nCould not find the item you wanted. Try double checking if the name is spelled correctly\n";
-		}
-		else {
-			//calls the delete item function in player
-			player.showItem(player.PlayerInventory[id]);
+			string itemName = command.substr(6, (command.length() - 5));
+			int id = player.searchItem(itemName);
+			if (id == -1)
+			{
+				//did not find the item
+				cout << "\nCould not find the item you wanted. Try double checking if the name is spelled correctly\n";
+			}
+			else {
+				//calls the delete item function in player
+				player.showItem(player.PlayerInventory[id]);
+			}
 		}
 	}else if(command.find("/quit") == 0)
 	{
@@ -363,7 +392,7 @@ void Commands(string command, Player& player, vector<Item>& list)
 	}
 	else
 	{
-		cout << "unrecognized command. type '/help' to see the list of commands.";
+		cout << "\nUnrecognized command. Type '/help' to see the list of commands.\n";
 	}
 
 }
@@ -437,17 +466,17 @@ vector<Item> createItems()
 {
 	vector<Item> items;
 	//weapons
-	Item ShortSword(0, "Short Sword", Weapon, "A basic sword that measures 1 - 1.5ft in length", 10, 10, "OneHanded", 1, 0);
-	Item Club(1, "Club", Weapon, "A blunt object that can be swung with force", 2, 5, "OneHanded", 1, 1);
-	Item Axe(2, "Axe", Weapon, "A long wooden handler with a sharp blade on the end used for chopping", 8, 10, "OneHanded", 2, 1);
-	Item LongSword(3, "Longsword", Weapon, "Longer than a shortsword, this weapon can cause more damage while being OneHanded", 15, 15, "OneHanded", 2, 0);
-	Item GreatClub(4, "Great Club", Weapon, "This great club is an upgrade from a regular club in both size and damage.", 5, 10, "OneHanded", 2, 0);
-	Item BattleAxe(5, "Battleaxe", Weapon, "Used in battle, this weapon has a deadly force behind it when used", 20, 15, "TwoHanded", 3, 0);
-	Item Rapier(6, "Rapier", Weapon, "This light weapon is used for quick and consistent attacks to weaken your enemy", 20, 5, "OneHanded", 3, 0);
-	Item Warhammer(7, "Warhammer", Weapon, "This weapon is extermely heavy and used for doing lots of damage in one hit.", 25, 25, "TwoHanded", 3, 0);
-	Item Glaive(8, "Glaive", Weapon, "A pole arm that is a large knife mounted to a pole.", 30, 20, "TwoHanded", 4, 0);
-	Item GreatAxe(9, "Greataxe", Weapon, "The largest member of axes. It requires two hands to wield.", 30, 25, "TwoHanded", 4, 0);
-	Item GreatSword(10, "Greatsword", Weapon, "The largest member of swords. It requires two hands to wield.", 50, 20, "TwoHanded", 4, 0);
+	Item ShortSword(0, "Short Sword", Weapon, "A basic sword that measures 1 - 1.5ft in length", 10, 10, "OneHanded", 1, 6);
+	Item Club(1, "Club", Weapon, "A blunt object that can be swung with force", 2, 5, "OneHanded", 1, 4);
+	Item Axe(2, "Axe", Weapon, "A long wooden handler with a sharp blade on the end used for chopping", 8, 10, "OneHanded", 2, 4);
+	Item LongSword(3, "Longsword", Weapon, "Longer than a shortsword, this weapon can cause more damage while being OneHanded", 15, 15, "OneHanded", 2, 6);
+	Item GreatClub(4, "Great Club", Weapon, "This great club is an upgrade from a regular club in both size and damage.", 5, 10, "OneHanded", 2, 6);
+	Item BattleAxe(5, "Battleaxe", Weapon, "Used in battle, this weapon has a deadly force behind it when used", 20, 15, "TwoHanded", 3, 8);
+	Item Rapier(6, "Rapier", Weapon, "This light weapon is used for quick and consistent attacks to weaken your enemy", 20, 5, "OneHanded", 3, 8);
+	Item Warhammer(7, "Warhammer", Weapon, "This weapon is extermely heavy and used for doing lots of damage in one hit.", 25, 25, "TwoHanded", 3, 10);
+	Item Glaive(8, "Glaive", Weapon, "A pole arm that is a large knife mounted to a pole.", 30, 20, "TwoHanded", 4, 10);
+	Item GreatAxe(9, "Greataxe", Weapon, "The largest member of axes. It requires two hands to wield.", 30, 25, "TwoHanded", 4, 12);
+	Item GreatSword(10, "Greatsword", Weapon, "The largest member of swords. It requires two hands to wield.", 50, 20, "TwoHanded", 4, 12);
 	//armor
 	Item LeatherArmor(11, "Leather Armor", Armor, "Armor made from stiff leather", 10, 10, "Light", 1, 11);
 	Item PaddedArmor(12, "Padded Armor", Armor, "Armor made from regular clothes padded together", 5, 10, "Light", 1, 11);
