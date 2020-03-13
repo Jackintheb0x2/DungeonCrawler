@@ -185,7 +185,7 @@ class Player
 		cout << "\n----------------------------------";
 	}
 	
-	int searchItem(string name)
+	int searchPlayerItem(string name)
 	{
 		//goes through a while loop to check if the name argument matches the item name
 		int id = 0;
@@ -255,8 +255,8 @@ class Player
 vector<Item> createItems();
 void Store(vector<Item>& list);
 void PlayerStats(Player& player);
-void Commands(string command, Player& player, vector<Item>& list);
-
+void Commands(string command, Player& player, vector<Item>& list, bool store);
+int SearchStoreItem(vector<Item>& StoreItem, string ItemName);
 //this is the main function where everything gets run here first
 
 //the only global variable
@@ -264,6 +264,8 @@ bool GameRunning = true;
 
 int main()
 {
+	//all of the variables
+	bool storeEnabled = true;
 	//this lets rolls be randomized
 	srand(static_cast<unsigned int>(time(nullptr)));
 
@@ -282,7 +284,7 @@ int main()
 		getline(cin, answer);
 		if (answer.find('/') == 0)
 		{
-			Commands(answer, player, Items);
+			Commands(answer, player, Items, storeEnabled);
 		}
 	} while (GameRunning);
 	
@@ -305,7 +307,7 @@ int Decision(vector<string> decision)
 {
 	int choice = 0;
 	cout << "\nMENU:";
-	cout << "\n----------";
+	cout << "\n----------\n";
 	for(int i = 0; i < decision.size(); i++)//for loop displays each decision
 	{
 		cout << i+1 << ". " << decision[i] << "\n";
@@ -316,8 +318,26 @@ int Decision(vector<string> decision)
 	return choice;
 }
 
+int SearchStoreItem(vector<Item>& StoreItem, string ItemName)
+{
+	//goes through a while loop to check if the name argument matches the item name
+	int id = 0;
+	do
+	{
+		++id;
+	} while (ItemName != StoreItem[id].name);
+
+	//if there is a match, it returns the id from the inventory vector
+	if (ItemName == StoreItem[id].name)
+	{
+		return id;
+	}//else it returns a -1 which will be used to see if it came back false and -1 is impossible to return from a vector
+
+	return -1;
+}
+
 //handles all of the commands
-void Commands(string command, Player& player, vector<Item>& list)
+void Commands(string command, Player& player, vector<Item>& StoreItems, bool store)
 {
 	//displays all of the commands if the command is /help
 	if(command == "/help")
@@ -345,9 +365,83 @@ void Commands(string command, Player& player, vector<Item>& list)
 	}
 	else if (command == "/store")
 	{
-		//displays all of the items you can buy
-		Store(list);
+		if(store)
+		{
+			//displays all of the items you can buy
+			Store(StoreItems);
+		}else
+		{
+			cout << "\nThe store command is disabled, you have to be in the store to call this command\n";
+		}
+		
 	}
+	//command.find is for if you need to input anything extra like an item
+	else if(command.find("/buy") == 0)
+	{
+		if(store)
+		{
+			//finds the name of the item you want to drop
+			string itemName = command.substr(6, (command.length() - 5));
+			int ItemID = SearchStoreItem(StoreItems, itemName);
+
+			
+			if (ItemID == -1)
+			{
+				//did not find the item
+				cout << "\nCould not find the item you wanted. Try double checking if the name is spelled correctly\n";
+			}else
+			{
+				//if you have enough money AND you can carry it
+				if(player.Money >= StoreItems[ItemID].cost && player.carrying_capacity >= StoreItems[ItemID].weight)
+				{
+					player.Money -= StoreItems[ItemID].cost;
+					player.carrying_capacity -= StoreItems[ItemID].weight;
+					player.addItem(StoreItems[ItemID]);
+				}else
+				{
+					cout << "\nYou do not have enough Money and/or Space \nin your inventory. Try buying a bag to \nincrease your carrying capacity.\n";
+				}
+			}
+			
+		}else
+		{
+			cout << "\nThe store command is disabled, you have to be in the store to call this command\n";
+		}
+	}
+	//command.find is for if you need to input anything extra like an item
+	else if(command.find("/sell") == 0)
+	{
+		if (store)
+		{
+			if (player.PlayerInventory.empty()) {
+				cout << "\nYou have no items!\n";
+			}
+			else
+			{
+				//finds the name of the item you want to drop
+				string itemName = command.substr(6, (command.length() - 5));
+				//convert string name to item id
+				int id = player.searchPlayerItem(itemName);
+				if (id == -1)
+				{
+					//did not find the item
+					cout << "\nCould not find the item you wanted. Try double checking if the name is spelled correctly\n";
+				}
+				else {
+					player.Money += (player.PlayerInventory[id].cost / 2);
+					player.carrying_capacity += player.PlayerInventory[id].weight;
+					//calls the delete item function in player
+					player.deleteItem(player.PlayerInventory[id]);
+					
+				}
+			}
+		}
+		else
+		{
+			cout << "\nThe store command is disabled, you have to be in the store to call this command\n";
+		}
+	}
+	//command.find is for if you need to input anything extra like an item
 	else if (command.find("/drop") == 0)
 	{
 		if (player.PlayerInventory.empty()) {
@@ -357,7 +451,7 @@ void Commands(string command, Player& player, vector<Item>& list)
 			//finds the name of the item you want to drop
 			string itemName = command.substr(6, (command.length() - 5));
 			//convert string name to item id
-			int id = player.searchItem(itemName);
+			int id = player.searchPlayerItem(itemName);
 			if (id == -1)
 			{
 				//did not find the item
@@ -369,13 +463,14 @@ void Commands(string command, Player& player, vector<Item>& list)
 			}
 		}
 	}
+	//command.find is for if you need to input anything extra like an item
 	else if (command.find("/item") == 0) {
 		if (player.PlayerInventory.empty()) {
 			cout << "\nYou have no items!\n";
 		}else
 		{
 			string itemName = command.substr(6, (command.length() - 5));
-			int id = player.searchItem(itemName);
+			int id = player.searchPlayerItem(itemName);
 			if (id == -1)
 			{
 				//did not find the item
@@ -386,7 +481,7 @@ void Commands(string command, Player& player, vector<Item>& list)
 				player.showItem(player.PlayerInventory[id]);
 			}
 		}
-	}else if(command.find("/quit") == 0)
+	}else if(command == "/quit")
 	{
 		exit(EXIT_SUCCESS);
 	}
