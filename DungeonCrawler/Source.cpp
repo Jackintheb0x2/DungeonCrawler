@@ -3,6 +3,7 @@
 #include <string>//this library lets you use strings
 #include <ctime>//lets the computer perform random functions, without it, the random function would not be as random
 #include <vector>//lets me store the items in a master list and the players inventory
+#include <cmath>
 
 //namespace gets rid of adding 'std::' as part of cout and cin
 using namespace std;
@@ -182,13 +183,13 @@ class Player
 			cout << "\n+" << inventoryItem.effect << " Carrying Capacity";
 			break;
 		}
-		cout << "\n----------------------------------";
+		cout << "\n----------------------------------\n";
 	}
 	
 	int searchPlayerItem(string name)
 	{
 		//goes through a while loop to check if the name argument matches the item name
-		int id = 0;
+		int id = -1;
 		do
 		{
 			++id;
@@ -211,6 +212,7 @@ class Player
 		int id = 0;//this stores the id of each item
 		int NameSize = 0;//these two variables organize the store to make it look nice
 		int format = 0;
+		int x = round(PlayerInventory.size() / 2);
 		cout << "\nPLAYER INVENTORY\n";
 		cout << "-----------------------------------------------------------------------------------------------------------\n";
 		for (int i = 0; i < 19; i++)
@@ -249,12 +251,32 @@ class Player
 		cout << "-----------------------------------------------------------------------------------------------------------\n";
 		cout << "\n\n";
 	}
+	void PlayerStats()
+	{
+		//displays stats
+		cout << "\n------------------------------";
+		cout << "\nPLAYER STATS:";
+		cout << "\nName: " << UserName;
+		cout << "\nStrength:     " << Strength << " | StrMod: " << StrMod;
+		cout << "\nDexterity:    " << Dexterity << " | DexMod: " << DexMod;
+		cout << "\nConstitution: " << Constitution << " | ConMod: " << ConMod;
+		cout << "\nIntelligence: " << Intelligence << " | IntMod: " << IntMod;
+		cout << "\nWisdom:       " << Wisdom << " | WisMod: " << WisMod;
+		cout << "\nCharisma:     " << Charisma << " | ChaMod: " << ChaMod;
+		cout << "\nPlayer Health: " << Health;
+		cout << "\nArmor Class: " << ac;
+		cout << "\nPlayer Money: $" << Money;
+		cout << "\nPlayer Carrying Capacity: " << carrying_capacity;
+		cout << "\n------------------------------\n\n";
+	}
+	void EquipItem() {
+
+	}
 };
 
 //created prototype of master item list
 vector<Item> createItems();
 void Store(vector<Item>& list);
-void PlayerStats(Player& player);
 void Commands(string command, Player& player, vector<Item>& list, bool store);
 int SearchStoreItem(vector<Item>& StoreItem, string ItemName);
 //this is the main function where everything gets run here first
@@ -274,11 +296,12 @@ int main()
 	Introduction();
 	//this creates a new instance of the player class
 	Player player;
-	PlayerStats(player);
+	player.PlayerStats();
 	
 	
 	vector<Item> Items = createItems();
 	string answer;
+
 	do
 	{
 		getline(cin, answer);
@@ -321,7 +344,7 @@ int Decision(vector<string> decision)
 int SearchStoreItem(vector<Item>& StoreItem, string ItemName)
 {
 	//goes through a while loop to check if the name argument matches the item name
-	int id = 0;
+	int id = -1;
 	do
 	{
 		++id;
@@ -346,10 +369,11 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 		cout << "/help  | /inventory          | /store\n";
 		cout << "/stats | /drop (item name)   | /item (name)\n";
 		cout << "/quit  | /buy (in store only)| /sell (in store only)\n";
+		cout << "       | /equip (item name)  | /gearEquipped\n";
 	}else if(command == "/stats")
 	{
 		//gets the player stats
-		PlayerStats(player);
+		player.PlayerStats();
 	}else if(command == "/inventory")
 	{
 		//gets the player's inventory
@@ -358,10 +382,8 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 			cout << "\nYou have no items!\n";
 		}else
 		{
-
 			player.displayInventory();
 		}
-		
 	}
 	else if (command == "/store")
 	{
@@ -380,8 +402,8 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 	{
 		if(store)
 		{
-			//finds the name of the item you want to drop
-			string itemName = command.substr(6, (command.length() - 5));
+			//finds the name of the item you want to buy
+			string itemName = command.substr(5, command.length() - 5);
 			int ItemID = SearchStoreItem(StoreItems, itemName);
 
 			
@@ -397,6 +419,7 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 					player.Money -= StoreItems[ItemID].cost;
 					player.carrying_capacity -= StoreItems[ItemID].weight;
 					player.addItem(StoreItems[ItemID]);
+					cout << "Item Bought!\n";
 				}else
 				{
 					cout << "\nYou do not have enough Money and/or Space \nin your inventory. Try buying a bag to \nincrease your carrying capacity.\n";
@@ -419,7 +442,7 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 			else
 			{
 				//finds the name of the item you want to drop
-				string itemName = command.substr(6, (command.length() - 5));
+				string itemName = command.substr(6, (command.length() - 6));
 				//convert string name to item id
 				int id = player.searchPlayerItem(itemName);
 				if (id == -1)
@@ -432,7 +455,7 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 					player.carrying_capacity += player.PlayerInventory[id].weight;
 					//calls the delete item function in player
 					player.deleteItem(player.PlayerInventory[id]);
-					
+					cout << "Item Sold!\n";
 				}
 			}
 		}
@@ -449,7 +472,7 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 		}else
 		{
 			//finds the name of the item you want to drop
-			string itemName = command.substr(6, (command.length() - 5));
+			string itemName = command.substr(6, (command.length() - 6));
 			//convert string name to item id
 			int id = player.searchPlayerItem(itemName);
 			if (id == -1)
@@ -460,6 +483,7 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 			else {
 				//calls the delete item function in player
 				player.deleteItem(player.PlayerInventory[id]);
+				cout << "Item Dropped. You cannot get this back!\n";
 			}
 		}
 	}
@@ -467,9 +491,10 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 	else if (command.find("/item") == 0) {
 		if (player.PlayerInventory.empty()) {
 			cout << "\nYou have no items!\n";
-		}else
+		}
+		else
 		{
-			string itemName = command.substr(6, (command.length() - 5));
+			string itemName = command.substr(6, (command.length() - 6));
 			int id = player.searchPlayerItem(itemName);
 			if (id == -1)
 			{
@@ -481,7 +506,14 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 				player.showItem(player.PlayerInventory[id]);
 			}
 		}
-	}else if(command == "/quit")
+	}
+	else if (command.find("/equip") == 0) {
+		
+	}
+	else if (command == "/gearEquipped") {
+
+	}
+	else if (command == "/quit")
 	{
 		exit(EXIT_SUCCESS);
 	}
@@ -490,25 +522,6 @@ void Commands(string command, Player& player, vector<Item>& StoreItems, bool sto
 		cout << "\nUnrecognized command. Type '/help' to see the list of commands.\n";
 	}
 
-}
-
-
-void PlayerStats(Player& player)
-{
-	//displays stats
-	cout << "\n------------------------------";
-	cout << "\nPLAYER STATS:";
-	cout << "\nName: " << player.UserName;
-	cout << "\nStrength:     " << player.Strength << " | StrMod: " << player.StrMod;
-	cout << "\nDexterity:    " << player.Dexterity << " | DexMod: " << player.DexMod;
-	cout << "\nConstitution: " << player.Constitution << " | ConMod: " << player.ConMod;
-	cout << "\nIntelligence: " << player.Intelligence << " | IntMod: " << player.IntMod;
-	cout << "\nWisdom:       " << player.Wisdom << " | WisMod: " << player.WisMod;
-	cout << "\nCharisma:     " << player.Charisma << " | ChaMod: " << player.ChaMod;
-	cout << "\nPlayer Health: " << player.Health;
-	cout << "\nArmor Class: " << player.ac;
-	cout << "\nPlayer Money: $" << player.Money;
-	cout << "\n------------------------------\n\n";
 }
 
 //this function displays all of the items in the game
@@ -675,6 +688,10 @@ int addPlayerStat(string stat, int arr[])
 		cout << stat << ": ";//displays the stat you are applying one of your rolls to
 		cin >> choice;//takes in the user's choice for the roll it wants to apply
 		choice--;//because the index starts at 0, subtracting one makes it choose the right index
+		//if (arr[choice] !< 6 && arr[choice] !> 0) {
+		//	cout << "\nThis is not an answer! choose from 1 - 6 to place the stat you want.\n";
+		//	goto check;
+		//}
 		if (arr[choice] == 0)//this if is to check if the player has already chose that role
 		{
 			cout << "\nThis stat has already been used pick another one!\n";
